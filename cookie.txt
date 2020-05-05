@@ -1,0 +1,13 @@
+
+
+
+user=123766565
+name=John
+
+
+session
+
+mysite.com/index.html
+
+mysite.com/page22.html
+
