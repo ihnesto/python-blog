@@ -11,3 +11,37 @@ mysite.com/index.html
 
 mysite.com/page22.html
 
+blog.com/
+blog.com/register
+blog.com/login
+blog.com/
+blog.com/profile
+blog.com/add-article
+blog.com/add-article
+blog.com/add-article
+blog.com/remove-article
+blog.com/edit-article
+blog.com/logout
+
+
+<input type="hidden" value="user123">
+
+Меню:
+Home Register Login
+Когда залогинился
+Home Profile Add Remove Edit LogOut
+
+{% if current_user.is_authenticated %}
+  Home Profile Add Remove Edit  LogOut
+{% else %}
+  Home Register Login
+{% endif %}
+
+
+
+blog.com/logout
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
