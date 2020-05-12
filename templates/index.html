@@ -41,7 +41,7 @@
             </li>
            {% else %}
            <li class="nav-item">
-            <a class="nav-link" href="/login">Login</a>
+            <a class="nav-link" href="/login?next=/about">Login</a>  
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/register">Register</a>
@@ -51,9 +51,10 @@
         </div>
       </div>
       </nav>
-
-      
     </header>
+
+
+
     <main class="container">
       <div class="row">
         <div class="col-md-8">
@@ -66,7 +67,17 @@
               {% endfor %}
             {% endif %}
           {% endwith %}
+
+
+
+
           {% block content %}{% endblock %}
+
+
+
+
+
+
         </div>
         <div class="col-md-4">
           <div class="content-section">
