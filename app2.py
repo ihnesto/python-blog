@@ -9,6 +9,25 @@ from flask_login import LoginManager, UserMixin, login_user, current_user, logou
 from flask_bcrypt import Bcrypt
 
 
+# blog.py
+# app.py
+# models.py
+# forms.py
+# config.py
+# routes.py
+
+
+# Будущий проект - ecommerce
+# 1) Витрина
+# 2) Аккаунт
+# 3) Корзина
+# 4) Оформление
+# 5) Админ-зона
+
+
+
+
+
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '3254365h6k5g6kh7k5kjlhr5h4ouirhhh324'
@@ -39,7 +58,7 @@ class Article(db.Model):
     title = db.Column(db.String(2048), nullable=False)
     content = db.Column(db.Text, nullable=False)
     dateCreation = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    user_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, default=1)
 
     def __repr__(self):
         return f"Article('{self.title}' - '{self.dateCreation}')"
@@ -122,6 +141,8 @@ def login():
     if current_user.is_authenticated:
         return redirect('/')
     form = LoginForm()
+    # article = Article.query.first()
+    # form.email.data = article.title
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
