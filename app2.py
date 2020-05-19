@@ -28,6 +28,10 @@ from flask_bcrypt import Bcrypt
 
 
 
+
+
+
+
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '3254365h6k5g6kh7k5kjlhr5h4ouirhhh324'
