@@ -31,8 +31,16 @@ from flask_bcrypt import Bcrypt
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '3254365h6k5g6kh7k5kjlhr5h4ouirhhh324'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1234@localhost/blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+#'mysql+pymysql://root:1234@localhost/blog'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['MAIL_SERVER'] =  'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True 
+app.config['MAIL_USERNAME'] = 'abc'
+app.config['MAIL_PASSWORD'] = 'abcpasswd'
+
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
@@ -106,17 +114,30 @@ posts = [
     }
 ]
 
+# 404, 500, 403
+@app.errorhandler(404)
+def e404():
+    # return redirect('/')
+    return '<h1>Страница не найдена - blog</h1>', 404
+
 
 @app.route("/")
 def home():
     print(session)
     return render_template('home.html', posts=posts)
 
+# ЧПУ
+# mysitee.com/ phone / samsung / a28
+# mysitee.com/phone/lenovo/b28
+# mysitee.com/ phone / htc / a28
 
-@app.route("/about")
-def about():
-    print(session)
-    return render_template('about.html', title='About')
+
+
+@app.route("/phone/<brand>/<model>")
+def about(brand, model):
+    return f'BRAND={brand}, MODEL={model}'
+    #print(session)
+    #return render_template('about.html', title='About')
 
 
 @app.route("/register", methods=['GET', 'POST'])
