@@ -1,13 +1,17 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, session
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, ValidationError, FileField
+from flask_wtf.file import FileRequired, FileAllowed
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from datetime import timedelta
 from flask_login import LoginManager, UserMixin, login_user, current_user, logout_user, login_required
 from flask_bcrypt import Bcrypt
-
+from blog_config import BlogConfig
+import os
+from PIL import Image
+import PIL
 
 # blog.py
 # app.py
@@ -34,16 +38,7 @@ from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = '3254365h6k5g6kh7k5kjlhr5h4ouirhhh324'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
-#'mysql+pymysql://root:1234@localhost/blog'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-app.config['MAIL_SERVER'] =  'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True 
-app.config['MAIL_USERNAME'] = 'abc'
-app.config['MAIL_PASSWORD'] = 'abcpasswd'
+app.config.from_object(BlogConfig)
 
 
 db = SQLAlchemy(app)
@@ -60,6 +55,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(40), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
+    #user_img = db.Column(db.String(60), nullable=False)
 
     def __repr__(self):
         return f"User('{self.username}' - '{self.email}')"
@@ -84,6 +80,7 @@ class RegistrationForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirmPassword = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    user_img = FileField('User Image File', validators=[ FileRequired(), FileAllowed(['jpg', 'png'])])
     submit = SubmitField('Sign Up')
 
     def validate_username(self, username):
@@ -120,14 +117,14 @@ posts = [
 
 # 404, 500, 403
 @app.errorhandler(404)
-def e404():
+def e404(err):
     # return redirect('/')
     return '<h1>Страница не найдена - blog</h1>', 404
 
 
 @app.route("/")
 def home():
-    print(session)
+    # print(session)
     return render_template('home.html', posts=posts)
 
 # ЧПУ
@@ -140,19 +137,31 @@ def home():
 @app.route("/phone/<brand>/<model>")
 def about(brand, model):
     return f'BRAND={brand}, MODEL={model}'
-    #print(session)
+    ## print(session)
     #return render_template('about.html', title='About')
 
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
-    print(session)
+    # print(session)
     if current_user.is_authenticated:
         return redirect('/')
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        u_img = form.user_img.data
+        # for i in list(dir(u_img)) :
+        #     print(i)
+        img_name = form.user_img.data.filename
+        #img_path = os.getcwd() + '/static/user-pics/' + img_name
+        img_path = os.getcwd() + url_for('static', filename='user-pics/' + img_name)
+        print(img_path)
+        
+
+        p_img = Image.open(form.user_img.data)
+        p_img.resize((500, 500))
+        p_img.save(os.getcwd() + url_for('static', filename='user-pics/' + '_' + img_name))
         db.session.add(user)
         db.session.commit()
         flash('Your account was created', 'success')
@@ -162,7 +171,7 @@ def register():
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    print(session)
+    # print(session)
     if current_user.is_authenticated:
         return redirect('/')
     form = LoginForm()
@@ -186,7 +195,7 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
-    print(session)
+    # print(session)
     logout_user()
     return redirect('/')
 
